@@ -1,4 +1,9 @@
 using FluentValidation;
+using backend.src.Infrastructure.Data;
+using backend.src.Infrastructure.Repositories;
+using backend.src.Application.Validators;
+using backend.src.Application.Mappings;
+using backend.src.Application.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +19,7 @@ builder.Services.AddScoped<IRepositoryVaccine, RepositoryVaccine>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
