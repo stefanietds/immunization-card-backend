@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend.src.Application.DTOs;
 using backend.src.Application.Commands;
 using backend.src.Application.Queries;
+using FluentValidation;
 
 namespace backend.src.Presentation.Controllers;
 
@@ -21,16 +22,32 @@ public class VaccineController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Vaccine>>> GetAll()
     {
-        var result = await _mediator.Send(new GetAllVaccinesQuery());
-        return Ok(result);
+        try
+        {
+            var result = await _mediator.Send(new GetAllVaccinesQuery());
+            return Ok(ApiResponse<object>.SuccessResponse(result, "Dados de vacinas recuperados com sucesso"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500,
+                ApiResponse<IEnumerable<Vaccine>>.ErrorResponse(ex.Message));
+        }
     }
 
     [HttpPost]
     public async Task<ActionResult<Vaccine>> Create([FromBody] VaccineDto vaccineDto)
     {
-        var result = await _mediator.Send(new CreateVaccineCommand(vaccineDto));
-        if (!result)
-            return StatusCode(500, new { message = "Erro ao criar vacina" });
-        return Ok(new { message = "Vacina criada com sucesso" });
+        try
+        {
+            var result = await _mediator.Send(new CreateVaccineCommand(vaccineDto));
+            if (!result)
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Erro ao criar vacina"));
+            return Ok(ApiResponse<object>.SuccessResponse(result, "Vacina criada com sucesso"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500,
+                ApiResponse<Vaccine>.ErrorResponse(ex.Message));
+        }
     }
 }

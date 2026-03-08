@@ -4,6 +4,7 @@ using backend.src.Infrastructure.Repositories;
 using backend.src.Application.Validators;
 using backend.src.Application.Mappings;
 using backend.src.Application.Handlers;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,27 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
+
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var exception = context.Features
+            .Get<IExceptionHandlerFeature>()?.Error;
+
+        if (exception is ValidationException validationException)
+        {
+            context.Response.StatusCode = 400;
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                message = validationException.Message
+            });
+        }
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {

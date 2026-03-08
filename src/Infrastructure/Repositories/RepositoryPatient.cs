@@ -45,4 +45,9 @@ public class RepositoryPatient : IRepositoryPatient
             return false;
         }
     }
+
+    public async Task<bool> IsPatientExists(string cpf)
+    {
+        return await _context.Patients.AnyAsync(p => p.Cpf == cpf);
+    }
 }

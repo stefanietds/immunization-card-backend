@@ -29,6 +29,11 @@ public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand,
             throw new ValidationException(validationResult.Errors);
         }
 
+        if (await _repository.IsPatientExists(request.PatientDto.Cpf))
+        {
+            throw new ValidationException("Existe um paciente com este CPF.");
+        }
+
         var patient = _mapper.Map<Patient>(request.PatientDto);
         return await _repository.AddPatient(patient);
     }
